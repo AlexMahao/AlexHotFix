@@ -1,0 +1,25 @@
+
+buildscript {
+    repositories {
+        jcenter()
+        maven{
+            url uri('repo')
+        }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.0'
+        // 添加热修复插件
+        classpath 'com.alex_mahao.plugin:hotfix:1.0.+'
+
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

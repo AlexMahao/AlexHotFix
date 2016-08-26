@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/AlexHotFix.iml" filepath="$PROJECT_DIR$/AlexHotFix.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hotfixgradle/hotfixgradle.iml" filepath="$PROJECT_DIR$/hotfixgradle/hotfixgradle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hotpatch/hotpatch.iml" filepath="$PROJECT_DIR$/hotpatch/hotpatch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lib/lib.iml" filepath="$PROJECT_DIR$/lib/lib.iml" />
+    </modules>
+  </component>
+</project>
