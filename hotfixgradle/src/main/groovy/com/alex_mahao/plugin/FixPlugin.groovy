@@ -3,6 +3,7 @@ package com.alex_mahao.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import sun.rmi.runtime.Log
 
 
 public class FixPlugin implements Plugin<Project> {
@@ -15,38 +16,61 @@ public class FixPlugin implements Plugin<Project> {
      */
     static int FLAG;
 
+    private HashSet<String> buildNameList = new HashSet<>();
+    private HashSet<String> flavorNameList = new HashSet<>();
+
+    static String sFlavorName;
+
     @Override
     void apply(Project project) {
-
         project.afterEvaluate {
             //注入代码
+
+            project.android.applicationVariants.each { variant ->
+                if (!isEmpty(variant.buildType.name)) {
+                    buildNameList.add(variant.buildType.name)
+                }
+                if (!isEmpty(variant.flavorName)) {
+                    flavorNameList.add(variant.flavorName);
+                }
+            }
+
+            flavorNameList.add("");
+            println("产品列表:"+flavorNameList.toString())
             // 初始化代码注入工具
             InjectUtils.init(project)
-
             // 获取transformClassesWithDexForXXX ,该task 将class 文件打包成dex
-            def dexRelease = project.tasks.findByName("transformClassesWithDexForRelease")
+            for (String flavorName : flavorNameList) {
+                def dexRelease = project.tasks.findByName("transformClassesWithDexFor${flavorName}Release")
+                // 获取补丁的版本
+                def dexdohot = project.tasks.findByName("transformClassesWithDexFor${flavorName}Dohot")
 
-            // 获取补丁的版本
-            def dexdohot = project.tasks.findByName("transformClassesWithDexForDohot")
+                if (dexRelease) {
+                    println("-----" + dexRelease.name)
+                    dexReleaseProcess(dexRelease)
+                }
 
-            if (dexRelease) {
-                dexReleaseProcess(dexRelease)
+                if (dexdohot) {
+                    println("-----" + dexdohot.name)
+                    dexDohotProcess(dexdohot)
+                }
             }
 
-            if (dexdohot) {
-                dexDohotProcess(dexdohot)
-            }
+
         }
 
+    }
+
+    public boolean isEmpty(String str) {
+        return str == null || str.equals("");
     }
 
     //dohot 的处理
     def dexDohotProcess = { Task dexdohot ->
         //生成补丁的方式和release很像，都需要注入代码
 
-        dexdohot.outputs.upToDateWhen {false}
-
-        dexdohot.doFirst{
+        dexdohot.outputs.upToDateWhen { false }
+        dexdohot.doFirst {
             println("***************开始注入代码***************")
             FLAG = FLAG_DO_HOT
 
@@ -65,10 +89,10 @@ public class FixPlugin implements Plugin<Project> {
 
             println("***************开始生成补丁包***************")
             // 打补丁
-            if(FixUtils.hotFile.listFiles().size()>0){
+            if (FixUtils.hotFile.listFiles().size() > 0) {
                 // 有补丁，对补丁进行打包
                 println("存在补丁，开始打包...")
-                FixUtils.dx(project,FixUtils.hotFile.absolutePath,"patch_dex.jar")
+                FixUtils.dx(project, FixUtils.hotFile.absolutePath, "patch_dex.jar")
             }
 
             println("***************生成补丁包结束***************")
@@ -104,7 +128,6 @@ public class FixPlugin implements Plugin<Project> {
         }
 
     }
-
 
 
 }

@@ -1,10 +1,12 @@
 apply plugin: 'com.android.application'
 
-apply plugin:'plugin.hot'
+apply plugin: 'plugin.hot'
+
 
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
+
 
     defaultConfig {
         applicationId "com.alex.alexhotfix"
@@ -34,11 +36,29 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
-        dohot{
+        dohot {
             // 生成补丁的版本
         }
     }
+
+    productFlavors {
+
+        "163" {
+
+        }
+
+        "360" {
+
+        }
+
+    }
 }
+
+/*afterEvaluate {
+    android.applicationVariants.each { variant ->
+        println("----${variant.buildType.name}----${variant.flavorName}----")
+    }
+}*/
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
