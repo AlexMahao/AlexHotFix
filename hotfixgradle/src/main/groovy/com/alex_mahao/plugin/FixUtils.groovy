@@ -3,14 +3,15 @@ package com.alex_mahao.plugin
 import org.gradle.api.Project
 
 import java.security.MessageDigest
+
 /**
  * 补丁包的操作
  */
-public class FixUtils{
+public class FixUtils {
 
     static Writer writer;
 
-    static Map<String,String> md5Map;
+    static Map<String, String> md5Map;
 
     /**
      * 保存补丁的文件夹
@@ -23,18 +24,18 @@ public class FixUtils{
      * @param classPath
      * @param className
      */
-    static void processReleaseMD5(File hashFile,String classPath, String className){
-        if(writer==null){
+    static void processReleaseMD5(File hashFile, String classPath, String className) {
+        if (writer == null) {
             writer = hashFile.newPrintWriter()
         }
-        String filePath = classPath+"\\"+className.replace(".","\\")+".class"
+        String filePath = classPath + File.separator + className.replace(".", File.separator) + ".class"
 
         // 生成md5 值
         String md5 = md5(new File(filePath))
         //保存md5值
-        writer.println(className+"-"+md5)
+        writer.println(className + "-" + md5)
 
-        println(className+"写入补丁文件")
+        println(className + "写入补丁文件")
 
     }
 
@@ -44,34 +45,31 @@ public class FixUtils{
      * @param classPath
      * @param className
      */
-    static void processDoHotMD5(File hashFile,String classPath, String className) {
+    static void processDoHotMD5(File hashFile, String classPath, String className) {
         if (md5Map == null) {
             md5Map = resolveHashFile(hashFile)
         }
 
-        String filePath = classPath+"\\"+className.replace(".","\\")+".class"
+        String filePath = classPath + File.separator + className.replace(".", File.separator) + ".class"
         // 生成md5 值
         String md5 = md5(new File(filePath))
 
-        String oldMd5 = md5Map.get(className,"false");
+        String oldMd5 = md5Map.get(className, "false");
         // 如果不相等，说明有补丁文件
 
-        if(hotFile==null) {
-            hotFile = new File(hashFile.getParent() + "\\hot\\")
+        if (hotFile == null) {
+            hotFile = new File(hashFile.getParent() + File.separator + "hot" + File.separator)
         }
-        if(hotFile.exists()){
+        if (hotFile.exists()) {
             // 清空打补丁的文件夹
             FileUtils.cleanDirectory(hotFile)
         }
 
-        if(!md5.equals(oldMd5)){
+        if (!md5.equals(oldMd5)) {
             // 赋值当前文件到到指定目录
-            FileUtils.copyFile(new File(filePath),new File(hotFile,className.replace(".","\\")+".class"))
+            FileUtils.copyFile(new File(filePath), new File(hotFile, className.replace(".", File.separator) + ".class"))
         }
     }
-
-
-
 
     /**
      * 将文件转成md5
@@ -100,7 +98,6 @@ public class FixUtils{
         return new String(str)
     }
 
-
     /**
      * 将hash.txt解析成map
      * @param hashFile
@@ -119,9 +116,9 @@ public class FixUtils{
 
     /**
      * 将补丁的目录打包成补丁文件
-     * @param project  工程
-     * @param patchDir  补丁的目录
-     * @param patchName  打成补丁的名字
+     * @param project 工程
+     * @param patchDir 补丁的目录
+     * @param patchName 打成补丁的名字
      */
     static void dx(Project project, String patchDir, String patchName) {
         File file = new File(patchDir)
@@ -132,8 +129,8 @@ public class FixUtils{
                 def stdout = new ByteArrayOutputStream()
 
                 project.exec {
-                    workingDir "${InjectUtils.sdkDir}\\build-tools\\$buildToos"
-                    commandLine 'cmd','/c','dx.bat', '--dex', '--output', "$patchDir\\$patchName", patchDir
+                    workingDir "${InjectUtils.sdkDir}${File.separator}build-tools${File.separator}$buildToos"
+                    commandLine 'cmd', '/c', 'dx.bat', '--dex', '--output', "$patchDir${File.separator}$patchName", patchDir
                     standardOutput = stdout
                 }
                 def error = stdout.toString().trim()

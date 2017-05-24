@@ -14,12 +14,12 @@ public class InjectUtils {
     static ClassPool classPool = ClassPool.default
 
 
-    static List noProcessJar = ['com\\android\\support', 'com.android.support'];
+    static List noProcessJar = ["com${File.separator}android${File.separator}support", 'com.android.support'];
 
-    static List noProcessClsPath = ['android\\support\\', '$', 'R.class', 'BuildConfig.class']
+    static List noProcessClsPath = ["android${File.separator}support${File.separator}", '$', 'R.class', 'BuildConfig.class']
 
     // 动态加载jar 包的工具类不能被加载
-    static List noProcessClsName = ['com\\alex\\hotpatch','MyApp']
+    static List noProcessClsName = ["com${File.separator}alex${File.separator}hotpatch", 'MyApp']
 
     /**
      * hash值得文件
@@ -33,10 +33,9 @@ public class InjectUtils {
     static String sdkDir
 
 
-
     static void init(Project project) {
 
-        hashFilePath = project.rootDir.absolutePath + "\\hash.txt"
+        hashFilePath = project.rootDir.absolutePath + "${File.separator}hash.txt"
 
         initJavassist(project)
     }
@@ -148,13 +147,13 @@ public class InjectUtils {
     static void processMd5(String classPath, String className) {
         switch (FixPlugin.FLAG) {
             case FixPlugin.FLAG_DO_HOT:
-                if(hashFile==null) {
+                if (hashFile == null) {
                     hashFile = new File(hashFilePath)
-                    if(!hashFile.exists()){
+                    if (!hashFile.exists()) {
                         throw new Exception("请先运行release 生成对比文件")
                     }
                 }
-                FixUtils.processDoHotMD5(hashFile,classPath,className)
+                FixUtils.processDoHotMD5(hashFile, classPath, className)
                 break;
             case FixPlugin.FLAG_RELEASE:
                 println("生成release")
@@ -163,7 +162,7 @@ public class InjectUtils {
                     hashFile = FileUtils.getHashFile(hashFilePath)
                 }
                 // 处理生成md5值
-                FixUtils.processReleaseMD5(hashFile,classPath,className);
+                FixUtils.processReleaseMD5(hashFile, classPath, className);
                 break;
         }
 
@@ -179,8 +178,8 @@ public class InjectUtils {
         sdkDir = prop.getProperty('sdk.dir')
 
         String version = project.android.compileSdkVersion
-        String androidJar = sdkDir + "\\" + "platforms\\" + version + "\\android.jar"
-        String apacheJar = sdkDir + "\\" + "platforms\\" + version + "\\optional\\org.apache.http.legacy.jar"
+        String androidJar = sdkDir + File.separator + "platforms" + File.separator + version + File.separator + "android.jar"
+        String apacheJar = sdkDir + File.separator + "platforms" + File.separator + version + File.separator + "optional${File.separator}org.apache.http.legacy.jar"
 
         classPool.appendClassPath(androidJar)
 
@@ -188,7 +187,7 @@ public class InjectUtils {
             classPool.appendClassPath(apacheJar)
         }
 
-        def libPath = project.rootDir.absolutePath.concat("\\antilazyLoad.jar")
+        def libPath = project.rootDir.absolutePath.concat("${File.separator}antilazyLoad.jar")
         classPool.appendClassPath(libPath)
     }
 
