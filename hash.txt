@@ -1,3 +1,0 @@
-com.alex.lib.LibTest1-01941eb3de31afec5ca221931f7d2955
-com.alex.alexhotfix.MainActivity-9e167f84f1282067e82bd55118ff8e5b
-com.alex.alexhotfix.Test-2fbde2216dd15b3cdb11c8e5f77cb0ee

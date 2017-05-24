@@ -14,22 +14,21 @@ import java.io.IOException;
  */
 public class MyApp extends Application {
 
-
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         HotPatch.init(this);
         // 获取补丁，如果存在就执行注入操作
-        String dexPath = Environment.getExternalStorageDirectory().getAbsolutePath().concat("/patch_dex.jar");
+        String dexPath = Environment.getExternalStorageDirectory().getAbsolutePath().concat(File.separator + "patch_dex.jar");
 
         // 系统的私有目录
         String targetFile = this.getDir("odex", Context.MODE_PRIVATE).getAbsolutePath() + File.separator
-                + "/patch_dex.jar";
-        if(!new File(dexPath).exists()){
+                + "patch_dex.jar";
+        if (!new File(dexPath).exists()) {
             return;
         }
         try {
-            HotPatch.copyFile(dexPath,targetFile);
+            HotPatch.copyFile(dexPath, targetFile);
             HotPatch.inject(targetFile);
         } catch (IOException e) {
             e.printStackTrace();
