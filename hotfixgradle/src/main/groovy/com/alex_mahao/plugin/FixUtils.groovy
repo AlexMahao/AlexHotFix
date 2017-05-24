@@ -35,7 +35,24 @@ public class FixUtils {
         //保存md5值
         writer.println(className + "-" + md5)
 
-        println(className + "写入补丁文件")
+        println(className + "：md5生成并写入")
+
+    }
+
+    /**
+     * 初始化热补丁对应文件夹
+     */
+    static void initHotDir() {
+        if (hotFile == null) {
+            hotFile = new File(new File(InjectUtils.hashFilePath).getParent() + File.separator + "hot" + File.separator)
+        }
+        if (hotFile.exists()) {
+            println("******** 清空hot文件夹 ××××××××××××")
+            FileUtils.cleanDirectory(hotFile)
+        } else {
+            println("******** hot文件夹不存在，创建${hotFile.absolutePath} ××××××××××××")
+            hotFile.mkdirs();
+        }
 
     }
 
@@ -57,15 +74,8 @@ public class FixUtils {
         String oldMd5 = md5Map.get(className, "false");
         // 如果不相等，说明有补丁文件
 
-        if (hotFile == null) {
-            hotFile = new File(hashFile.getParent() + File.separator + "hot" + File.separator)
-        }
-        if (hotFile.exists()) {
-            // 清空打补丁的文件夹
-            FileUtils.cleanDirectory(hotFile)
-        }
-
         if (!md5.equals(oldMd5)) {
+            println("${filePath} 文件修改，复制到hot目录")
             // 赋值当前文件到到指定目录
             FileUtils.copyFile(new File(filePath), new File(hotFile, className.replace(".", File.separator) + ".class"))
         }
@@ -128,15 +138,21 @@ public class FixUtils {
                 String buildToos = project.android.buildToolsVersion
                 def stdout = new ByteArrayOutputStream()
 
-                project.exec {
+                def command = "${InjectUtils.sdkDir}${File.separator}build-tools${File.separator}$buildToos${File.separator}dx --dex --output  $patchDir${File.separator}$patchName ${patchDir}"
+                println(command)
+                Process p = command.execute()
+                p.waitFor();
+                println(new PrintWriter(p.outputStream))
+
+                /*project.exec {
                     workingDir "${InjectUtils.sdkDir}${File.separator}build-tools${File.separator}$buildToos"
-                    commandLine 'cmd', '/c', 'dx.bat', '--dex', '--output', "$patchDir${File.separator}$patchName", patchDir
+                    commandLine 'dx', '--dex', '--output', "$patchDir${File.separator}$patchName", patchDir
                     standardOutput = stdout
                 }
                 def error = stdout.toString().trim()
                 if (error) {
                     println "dex error:" + error
-                }
+                }*/
             }
         }
     }

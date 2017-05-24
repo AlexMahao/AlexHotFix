@@ -43,30 +43,35 @@ public class FixPlugin implements Plugin<Project> {
     //dohot 的处理
     def dexDohotProcess = { Task dexdohot ->
         //生成补丁的方式和release很像，都需要注入代码
+
         dexdohot.outputs.upToDateWhen {false}
 
         dexdohot.doFirst{
-            println("开始注入代码")
+            println("***************开始注入代码***************")
             FLAG = FLAG_DO_HOT
+
+            FixUtils.initHotDir();
             dexdohot.inputs.files.each { File file ->
 
                 if (file.name.endsWith(".jar") && InjectUtils.shouldInjectJar(file.absolutePath)) {
                     // 对jar包注入代码
-                    println(file.absolutePath + "注入")
                     InjectUtils.injectJar(file)
                 } else if (file.isDirectory()) {
                     // 对主目录的clas进行注入
-                    println(file.absolutePath + "注入")
                     InjectUtils.injectDir(file)
                 }
             }
+            println("***************注入代码完成***************")
 
+            println("***************开始生成补丁包***************")
             // 打补丁
             if(FixUtils.hotFile.listFiles().size()>0){
                 // 有补丁，对补丁进行打包
-                println(FixUtils.hotFile.absolutePath)
+                println("存在补丁，开始打包...")
                 FixUtils.dx(project,FixUtils.hotFile.absolutePath,"patch_dex.jar")
             }
+
+            println("***************生成补丁包结束***************")
 
         }
 
@@ -79,7 +84,7 @@ public class FixPlugin implements Plugin<Project> {
 
         dexRelease.doFirst {
             // 注入代码
-            println("开始注入代码")
+            println("***************开始注入代码***************")
 
             FLAG = FLAG_RELEASE
 
@@ -87,17 +92,15 @@ public class FixPlugin implements Plugin<Project> {
 
                 if (file.name.endsWith(".jar") && InjectUtils.shouldInjectJar(file.absolutePath)) {
                     // 对jar包注入代码
-                    println(file.absolutePath + "注入")
                     InjectUtils.injectJar(file)
                 } else if (file.isDirectory()) {
                     // 对主目录的clas进行注入
-                    println(file.absolutePath + "注入")
                     InjectUtils.injectDir(file)
                 }
             }
             // 结束之后关闭流
-
             FixUtils.writer.close()
+            println("***************注入代码完成***************")
         }
 
     }

@@ -86,6 +86,7 @@ public class InjectUtils {
      * @param file
      */
     static void injectJar(File file) {
+        println(file.absolutePath + "注入")
         // jar包解压的目录
         File jarDir = new File(file.parent, file.name.replace('.jar', ''))
         // 解压jar 包
@@ -94,11 +95,8 @@ public class InjectUtils {
         classPool.appendClassPath(jarDir.absolutePath)
 
         jarDir.eachFileRecurse { f ->
-
             if (f.getName().endsWith(".class") && shouldInjectClass(f.absolutePath)) {
-                println(f.absolutePath + ":" + FileUtils.getClassName(jarDir, f))
                 injectClass(jarDir.absolutePath, FileUtils.getClassName(jarDir, f))
-                println(FileUtils.getClassName(jarDir, f) + "注入完成")
             }
         }
 
@@ -106,7 +104,7 @@ public class InjectUtils {
         // 删除原文件，重新压缩
 
         file.delete()
-        println(file.absolutePath + "删除原文件")
+        println(file.absolutePath + "删除文件")
         FileUtils.zipJar(jarDir, file.absolutePath)
         println(jarDir.absolutePath + "重新打包成jar")
     }
@@ -133,6 +131,7 @@ public class InjectUtils {
         }
         c.writeFile(classPath)
         c.detach()
+        println("\t" + classPath + ":" + className + "注入完成")
         // 处理md5值
         processMd5(classPath, className);
     }
@@ -150,15 +149,16 @@ public class InjectUtils {
                 if (hashFile == null) {
                     hashFile = new File(hashFilePath)
                     if (!hashFile.exists()) {
-                        throw new Exception("请先运行release 生成对比文件")
+                        throw new Exception("请先运行release 生成hash.txt文件")
                     }
                 }
                 FixUtils.processDoHotMD5(hashFile, classPath, className)
                 break;
             case FixPlugin.FLAG_RELEASE:
-                println("生成release")
+
                 //如果mapFile 还未存在，则创建文件
                 if (hashFile == null) {
+                    println("hash.txt不存在，创建文件...${hashFilePath}")
                     hashFile = FileUtils.getHashFile(hashFilePath)
                 }
                 // 处理生成md5值
@@ -196,11 +196,11 @@ public class InjectUtils {
      * @param fileDir
      */
     static void injectDir(File fileDir) {
+        println(fileDir.absolutePath + "注入")
         classPool.appendClassPath(fileDir.absolutePath)
         // 循环遍历，注入代码
         fileDir.eachFileRecurse { File file ->
             if (file.name.endsWith(".class") && shouldInjectClass(file.absolutePath)) {
-                println(file.absolutePath + "注入")
                 String classname = FileUtils.getClassName(fileDir, file)
                 injectClass(fileDir.absolutePath, classname)
             }
