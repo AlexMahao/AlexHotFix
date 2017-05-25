@@ -21,11 +21,11 @@ public class FixPlugin implements Plugin<Project> {
 
     static String sFlavorName;
 
+
     @Override
     void apply(Project project) {
         project.afterEvaluate {
             //注入代码
-
             project.android.applicationVariants.each { variant ->
                 if (!isEmpty(variant.buildType.name)) {
                     buildNameList.add(variant.buildType.name)
@@ -36,9 +36,8 @@ public class FixPlugin implements Plugin<Project> {
             }
 
             flavorNameList.add("");
-            println("产品列表:"+flavorNameList.toString())
+            println("产品列表:" + flavorNameList.toString())
             // 初始化代码注入工具
-            InjectUtils.init(project)
             // 获取transformClassesWithDexForXXX ,该task 将class 文件打包成dex
             for (String flavorName : flavorNameList) {
                 def dexRelease = project.tasks.findByName("transformClassesWithDexFor${flavorName}Release")
@@ -55,10 +54,7 @@ public class FixPlugin implements Plugin<Project> {
                     dexDohotProcess(dexdohot)
                 }
             }
-
-
         }
-
     }
 
     public boolean isEmpty(String str) {
@@ -73,7 +69,8 @@ public class FixPlugin implements Plugin<Project> {
         dexdohot.doFirst {
             println("***************开始注入代码***************")
             FLAG = FLAG_DO_HOT
-
+            sFlavorName = getDohotFlavorName(dexdohot.getName())
+            InjectUtils.init(project)
             FixUtils.initHotDir();
             dexdohot.inputs.files.each { File file ->
 
@@ -111,7 +108,8 @@ public class FixPlugin implements Plugin<Project> {
             println("***************开始注入代码***************")
 
             FLAG = FLAG_RELEASE
-
+            sFlavorName = getReleaseFlavorName(dexRelease.getName())
+            InjectUtils.init(project)
             dexRelease.inputs.files.each { File file ->
 
                 if (file.name.endsWith(".jar") && InjectUtils.shouldInjectJar(file.absolutePath)) {
@@ -129,5 +127,13 @@ public class FixPlugin implements Plugin<Project> {
 
     }
 
+
+    public String getReleaseFlavorName(String name) {
+        return name.substring(0, name.length() - "Release".length()).substring("transformClassesWithDexFor".length());
+    }
+
+    public String getDohotFlavorName(String name) {
+        return name.substring(0, name.length() - "Dohot".length()).substring("transformClassesWithDexFor".length());
+    }
 
 }

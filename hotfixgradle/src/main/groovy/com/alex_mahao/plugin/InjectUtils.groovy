@@ -35,9 +35,11 @@ public class InjectUtils {
 
     static void init(Project project) {
 
-        hashFilePath = project.rootDir.absolutePath + "${File.separator}hash.txt"
+        hashFilePath = project.rootDir.absolutePath + "${File.separator}hash-${FixPlugin.sFlavorName}.txt"
 
         initJavassist(project)
+
+        hashFile = null;
     }
 
     /**
@@ -149,7 +151,7 @@ public class InjectUtils {
                 if (hashFile == null) {
                     hashFile = new File(hashFilePath)
                     if (!hashFile.exists()) {
-                        throw new Exception("请先运行release 生成hash.txt文件")
+                        throw new Exception("请先运行release 生成hash-${FixPlugin.sFlavorName}.txt文件")
                     }
                 }
                 FixUtils.processDoHotMD5(hashFile, classPath, className)
@@ -158,7 +160,7 @@ public class InjectUtils {
 
                 //如果mapFile 还未存在，则创建文件
                 if (hashFile == null) {
-                    println("hash.txt不存在，创建文件...${hashFilePath}")
+                    println("hash-${FixPlugin.sFlavorName}.txt不存在，创建文件...${hashFilePath}")
                     hashFile = FileUtils.getHashFile(hashFilePath)
                 }
                 // 处理生成md5值

@@ -35,7 +35,7 @@ public class FixUtils {
         //保存md5值
         writer.println(className + "-" + md5)
 
-        println(className + "：md5生成并写入")
+        println(className + "：md5生成并写入:" + hashFile.absolutePath)
 
     }
 
@@ -43,9 +43,7 @@ public class FixUtils {
      * 初始化热补丁对应文件夹
      */
     static void initHotDir() {
-        if (hotFile == null) {
-            hotFile = new File(new File(InjectUtils.hashFilePath).getParent() + File.separator + "hot" + File.separator)
-        }
+        hotFile = new File(new File(InjectUtils.hashFilePath).getParent() + File.separator + "hot-${FixPlugin.sFlavorName}" + File.separator)
         if (hotFile.exists()) {
             println("******** 清空hot文件夹 ××××××××××××")
             FileUtils.cleanDirectory(hotFile)
